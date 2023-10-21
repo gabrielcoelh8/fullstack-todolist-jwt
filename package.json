@@ -1,0 +1,28 @@
+{
+  "name": "backend",
+  "version": "1.0.0",
+  "description": "Gestão de tarefas\u001b[D\u001b[D\u001b[D\u001b[D\u001b[D\u001b[D\u001b[D\u001b[D\u001b[D\u001b[D\u001b[D\u001b[D\u001b[D\u001b[D\u001b[D\u001b[D\u001b[DAPI para gestão de tarefas",
+  "main": "src/server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "nodemon src/server.js"
+  },
+  "keywords": [
+    "api",
+    "tarefas",
+    "jwt"
+  ],
+  "author": "Gabriel Coelho",
+  "license": "ISC",
+  "dependencies": {
+    "bcrypt": "^5.1.1",
+    "dotenv": "^16.3.1",
+    "eslint": "^8.52.0",
+    "express": "^4.18.2",
+    "jsonwebtoken": "^9.0.2",
+    "nodemon": "^3.0.1",
+    "pg": "^8.11.3",
+    "pg-hstore": "^2.3.4",
+    "sequelize": "^6.33.0"
+  }
+}
