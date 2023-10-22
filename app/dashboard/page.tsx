@@ -9,11 +9,10 @@ import { useEffect, useState } from "react";
 import { useGenerationStore } from "@/src/contexts/states";
 import { ITarefa } from "@/src/types/Tarefa";
 
-
-
 export default function Dashboard() {
-  const { isAuth, setIsAuth } = useGenerationStore()
+  const { isAuth } = useGenerationStore()
   const [tasks, setTasks] = useState<ITarefa[]>([]);
+  const router = useRouter();
 
     useEffect(() => {
       const fetchTarefas = async () => {
@@ -35,18 +34,15 @@ export default function Dashboard() {
       };
     }, []);
 
-    const router = useRouter();
-  
     // Verifique a autenticação
-    if (!isAuth) {
+    if (typeof window !== "undefined" && !isAuth) {
       // Redirecione o usuário de volta para a página de login
       router.push('/');
-      return
-      // Ou exiba uma mensagem de erro, caso deseje
+      return null; // Ou outra ação apropriada, como uma mensagem de redirecionamento em vez de renderizar o componente
     }
 
     return (
-      <main className="max-w-4xl mx-auto mt-4">
+      <main className="max-w-4xl mx-auto mt-4 w-full">
         <div className="text-center my-5 flex flex-col gap-4">
           <Navbar />
           <AddTarefa />

@@ -1,6 +1,7 @@
 "use client" 
 
 import { useGenerationStore } from "@/src/contexts/states";
+import { loginUser } from "@/src/services/api";
 import { useRouter } from "next/navigation";
 import { FormEventHandler, useState } from "react";
 
@@ -10,33 +11,27 @@ export default function Home() {
   const [passwordValue, setNewPasswordValue] = useState<string>('')
   const [errorValue, setNewErrorValue] = useState<string>('')
   const { isAuth, setIsAuth } = useGenerationStore()
-
-  const loginUser : FormEventHandler<HTMLFormElement> = async (e) => {
+ 
+  const handleloginUser : FormEventHandler<HTMLFormElement> = async (e) => {
       e.preventDefault();
       
       try {
-        const response = await fetch("http://localhost:4000/auth/entrar", {
-          headers: {
-            "Content-type": "application/json",
-          },
-          method: "POST",
-          credentials: "include",
-          body: JSON.stringify({
-            user_name: userNameValue,
-            password: passwordValue,
-          })
-        });
-        const data = await response.json();
-        
-        if(!response.ok) {
-          setNewErrorValue(data.message);
+        const response = await loginUser(
+          userNameValue,
+          passwordValue
+        )
+
+        if(response !== 200) {
+          setNewErrorValue(response.message);
+          return
         } else {
-          router.push('/dashboard')
           setIsAuth(!isAuth)
+          router.push('/dashboard')
+          return
         }
         
       } catch (error) {
-        console.log(error);
+        console.log("error: ",error);
     }
   }
 
@@ -50,7 +45,7 @@ export default function Home() {
         <div className="w-full p-6 m-auto bg-white rounded-md shadow-md lg:max-w-lg">
             <h1 className="text-3xl font-semibold text-center text-purple-700 p-2">Gestão de prioridades</h1>
 
-            <form className="space-y-4" onSubmit={loginUser}>
+            <form className="space-y-4" onSubmit={handleloginUser}>
                 <div>
                     <label className="label">
                         <span className="text-base label-text">Usuário</span>
@@ -83,8 +78,8 @@ export default function Home() {
                     />
                 </div>
                 
-                <div>
-                    <button className="btn btn-primary">Login</button>
+                <div className="flex justify-between">
+                  <button className="btn btn-primary" type="submit">Login</button>
                 </div>
 
             </form>

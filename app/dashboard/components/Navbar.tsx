@@ -1,14 +1,16 @@
 "use client" 
+/* eslint-disable */
 
 import { useGenerationStore } from "@/src/contexts/states";
 import { useRouter } from "next/navigation";
 import { FormEventHandler, useState } from "react";
 
+
 function Navbar() {
     const [errorValue, setNewErrorValue] = useState<string>('')
-    const { isAuth, setIsAuth } = useGenerationStore()
     const router = useRouter()
-    
+    const { isAuth, setIsAuth } = useGenerationStore()
+
     const logoutUser : FormEventHandler<HTMLFormElement> = async (e) => {
         e.preventDefault();
         try {
@@ -24,7 +26,7 @@ function Navbar() {
           if(!response.ok) {
             setNewErrorValue(data.message);
           } else {
-            setIsAuth(!isAuth)
+            setIsAuth(false)
             router.push('/')
           }
           

@@ -6,21 +6,29 @@ import { FiEdit, FiTrash } from "react-icons/fi"
 import Modal from "./Modal"
 import { useRouter } from "next/navigation"
 import { deleteTarefa, editTarefa } from "@/src/services/api"
+import DataField from "./DataField"
+import dayjs from 'dayjs'
+import utc from 'dayjs/plugin/utc' // Certifique-se de que o plugin 'utc' esteja instalado
+dayjs.extend(utc);
 
 interface TarefaProps {
     tarefa: ITarefa
 }
 
 const Tarefa: React.FC<TarefaProps> = ({ tarefa }) => {
+  
   const router = useRouter()
+
   const [openModalEdit, setOpenModalEdit] = useState<boolean>(false);
   const [openModalDelete, setOpenModalDelete] = useState<boolean>(false);
+  
   //campos
   const [tituloValue, setTituloValue] = useState<string>(tarefa.titulo)
   const [descricaoValue, setDescricaoValue] = useState<string>(tarefa.descricao)
-  const [dateValue, setDateValue] = useState(tarefa.prazo_final.toUTCString);
-  const [formattedDate, setFormattedDate] = useState(new Date);
-  const [statusValue, setStatusValue] = useState<string>(tarefa.status);
+  const [prazoValue, setPrazoValue] = useState(tarefa.prazo_final);
+  const [insercaoValue, setInsercaoValue] = useState(tarefa.data_insercao);
+  const [statusValue, setStatusValue] = useState<string>(tarefa.status.toString());
+  
 
   //handles
   const handleSubmitEditTarefa: FormEventHandler<HTMLFormElement> = async (e) => {
@@ -30,33 +38,50 @@ const Tarefa: React.FC<TarefaProps> = ({ tarefa }) => {
         id: tarefa.id,
         titulo: tituloValue,
         descricao: descricaoValue,
-        prazo_final: formattedDate,
-        data_insercao: tarefa.data_insercao,
+        prazo_final: prazoValue,
+        data_insercao: insercaoValue,
         status: statusValue
     })
 
     setOpenModalEdit(false)
-    router.refresh()
   }
 
   const handleDeleteTarefa = async (id: string) => {
     await deleteTarefa(id)
     setOpenModalDelete(false)
-    router.refresh()
+  }
+
+  const handleDateChange = (newDate: Date) => {
+    setPrazoValue(newDate);
+  };
+
+  const getBadgeClass = (status: string) => {
+    switch (status) {
+      case 'Iniciado':
+        return 'badge-primary';
+      case 'Em espera':
+        return 'badge-secondary';
+      case 'Pausado':
+        return 'badge-accent';
+      case 'Concluído':
+        return 'badge-ghost';
+      default:
+        return 'badge-primary';
+    }
   }
 
   return (                
-    <tr key={tarefa.id}>
-        <td className="w-fit">{tarefa.titulo}</td>
-        <td className="w-fit">{tarefa.descricao}</td>
-        <td className="w-fit">{new Date(tarefa.prazo_final).toLocaleDateString()}</td>
-        <td className="w-fit">{new Date(tarefa.data_insercao).toLocaleDateString()}</td>
-        <td className="w-fit">{tarefa.status}</td>
+    <tr key={tarefa.id} className="hover">
+        <td className="w-fit h-fit">{tarefa.titulo}</td>
+        <td className="w-fit h-fit">{tarefa.descricao}</td>
+        <td className="w-fit">{dayjs(tarefa.prazo_final).utc().format('DD/MM/YYYY')}</td>
+        <td className="w-fit">{dayjs(tarefa.data_insercao).utc().format('DD/MM/YYYY')}</td>
+        <td className="w-fit "><span className={`badge ${getBadgeClass(tarefa.status)}`}>{tarefa.status}</span></td>
         
         <td className="flex gap-5">
           <FiEdit onClick={() => setOpenModalEdit(true)} cursor="pointer" className="text-blue-500" size={25} />
           <Modal modalOpen={openModalEdit} setModalOpen={setOpenModalEdit}>
-                <form method='post' onSubmit={handleSubmitEditTarefa}>
+                <form method='PATCH' onSubmit={handleSubmitEditTarefa}>
                     <div className='modal-action'>
 
                         <div className="form-control w-full">
@@ -82,7 +107,7 @@ const Tarefa: React.FC<TarefaProps> = ({ tarefa }) => {
                         </label>
 
                         <textarea value={descricaoValue}
-                        onChange={(e) => setDescricaoValue(e.target.value)} //at event of change input element, set useState with new value
+                        onChange={(e) => setDescricaoValue(e.target.value)}
                         placeholder="Digite a descrição"
                         className="textarea textarea-bordered h-24 w-full"
                         >
@@ -92,18 +117,9 @@ const Tarefa: React.FC<TarefaProps> = ({ tarefa }) => {
 
                     <div className='modal-action'>
                         <div className="form-control w-full">
-                        <label className="label">
-                            <span className="label-text-alt">Prazo Final</span>
-                        </label>
+                        
+                        <DataField label="Prazo Final" dateValue={tarefa.prazo_final} setSelectedDate={handleDateChange}/>
 
-                        <input
-                            id="data"
-                            type="text"
-                            className="input input-bordered w-full"
-                            placeholder="DD/MM/AAAA"
-                            value={dateValue}
-                            onChange={(e) => setFormattedDate(new Date(e.target.value))}
-                        />
                         </div>
                     </div>
 
@@ -122,7 +138,7 @@ const Tarefa: React.FC<TarefaProps> = ({ tarefa }) => {
                         <option>Em espera</option>
                         <option>Iniciado</option>
                         <option>Pausado</option>
-                        <option>Concluído</option>
+                        <option>Concluido</option>
                         </select>
 
                         </div>
@@ -136,7 +152,7 @@ const Tarefa: React.FC<TarefaProps> = ({ tarefa }) => {
           <FiTrash onClick={() => setOpenModalDelete(true)} cursor="pointer" className="text-red-500" size={25} />
           <Modal modalOpen={openModalDelete} setModalOpen={setOpenModalDelete}>
 
-                <h3 className="text-lg">`Confirma apagar a tarefa '{tarefa.titulo}'?`</h3>
+                <h3 className="text-lg">Deseja mesmo apagar a tarefa {tarefa.titulo}?</h3>
                 <div className="modal-action">
                   <button className="btn" onClick={() => handleDeleteTarefa(tarefa.id)}>
                     Sim

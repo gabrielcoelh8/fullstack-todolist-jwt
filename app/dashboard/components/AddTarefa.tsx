@@ -4,19 +4,18 @@ import { AiOutlinePlus } from 'react-icons/ai'
 import Modal from './Modal'
 import { FormEventHandler, useState } from 'react'
 import { addTarefa } from '@/src/services/api'
-import { useRouter } from 'next/navigation'
-import { format, isValid } from 'date-fns';
-import { v4 as uuidv4 } from 'uuid'
+import DataField from './DataField'
+import dayjs from 'dayjs'
 
 const AddTarefa = () => {
-    const router = useRouter()
+    const tomorrow = dayjs().add(1, 'day');
+    
     const [modalOpen, setModalOpen] = useState<boolean>(false)
-
+ 
     const [tituloValue, setTituloValue] = useState<string>('')
     const [descricaoValue, setDescricaoValue] = useState<string>('')
-    const [dateValue, setDateValue] = useState('');
-    const [formattedDate, setFormattedDate] = useState('');
-    const [statusValue, setStatusValue] = useState<string>('Em espera');
+    const [prazoValue, setPrazoValue] = useState(tomorrow.toDate());
+    const [statusValue, setStatusValue] = useState<string>('');
 
     const handleSubmitNewTodo: FormEventHandler<HTMLFormElement> = async (e) => {
         e.preventDefault()
@@ -24,29 +23,24 @@ const AddTarefa = () => {
             id: '',
             titulo: tituloValue,
             descricao: descricaoValue,
-            prazo_final: new Date(formattedDate),
-            data_insercao: new Date(),
+            prazo_final: prazoValue,
+            data_insercao: dayjs().toDate(),
             status: statusValue
         })
 
-        setTituloValue("")
+        //resetar formulario
+        setTituloValue('')
+        setDescricaoValue('')
+        setPrazoValue(tomorrow.toDate())
+        setStatusValue('Em espera')
+
+        //fechar modal
         setModalOpen(false)
-        router.refresh()
     }
 
-    function handleDateChange(value: string) {
-        const inputValue = value;
-        const parsedDate = new Date(inputValue);
-    
-        if (isValid(parsedDate)) {
-          const formatted = format(parsedDate, 'dd/MM/yyyy');
-          setFormattedDate(formatted);
-        } else {
-          setFormattedDate('Data inválida');
-        }
-    
-        setDateValue(inputValue);
-      };
+    const handleDateChange = (newDate: Date) => {
+        setPrazoValue(newDate);
+    };
 
     return (
         <div>
@@ -82,7 +76,7 @@ const AddTarefa = () => {
                         </label>
 
                         <textarea value={descricaoValue}
-                        onChange={(e) => setDescricaoValue(e.target.value)} //at event of change input element, set useState with new value
+                        onChange={(e) => setDescricaoValue(e.target.value)}
                         placeholder="Digite a descrição"
                         className="textarea textarea-bordered h-24 w-full"
                         >
@@ -92,21 +86,13 @@ const AddTarefa = () => {
 
                     <div className='modal-action'>
                         <div className="form-control w-full">
-                        <label className="label">
-                            <span className="label-text-alt">Prazo Final</span>
-                            <span className="label-text">
-                                {formattedDate}
-                            </span>
-                        </label>
 
-                        <input
-                            id="data"
-                            type="text"
-                            className="input input-bordered w-full"
-                            placeholder="DD/MM/AAAA"
-                            value={dateValue}
-                            onChange={(e) => handleDateChange(e.target.value)}
+                        <DataField 
+                            label="Prazo Final" 
+                            dateValue={prazoValue} 
+                            setSelectedDate={handleDateChange}
                         />
+
                         </div>
                     </div>
 
@@ -125,7 +111,7 @@ const AddTarefa = () => {
                         <option>Em espera</option>
                         <option>Iniciado</option>
                         <option>Pausado</option>
-                        <option>Concluído</option>
+                        <option>Concluido</option>
                         </select>
 
                         </div>
