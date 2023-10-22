@@ -1,5 +1,4 @@
-# agro-business
-API de cadastro de tarefas com JWT
+# API de cadastro de tarefas com JWT
 
 ## Getting Started
 Instale as dependências:
