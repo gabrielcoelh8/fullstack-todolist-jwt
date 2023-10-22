@@ -1,4 +1,4 @@
-# API de cadastro de tarefas com JWT
+# API de cadastro de tarefas com JWT usando Node e Postgres
 
 ## Getting Started
 Instale as dependências:
