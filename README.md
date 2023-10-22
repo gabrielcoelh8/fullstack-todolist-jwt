@@ -1,6 +1,7 @@
-# API de cadastro de tarefas com JWT
+# API de cadastro de tarefas com JWT usando Postgres
 
 ## Getting Started
+
 Instale as dependências:
 
 ```bash
