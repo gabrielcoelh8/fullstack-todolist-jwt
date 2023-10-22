@@ -44,17 +44,18 @@ module.exports =
         const { user_name, password } = req.body
 
         if (!user_name) {
-            return res.status(422).json({ message: "O campo user_name é obrigatório." })
+            return res.status(422).json({ message: "O campo 'Nome de usuário' é obrigatório." })
         }
 
         if (!password) {
-            return res.status(422).json({ message: "O campo password é obrigatório" })
+            return res.status(422).json({ message: "O campo 'Senha' é obrigatório" })
         }
 
         const user = await ModelUser.findOne({ where: { user_name: user_name } })
         if (!user) {
-            return res.status(404).json({ message: "Os dados de login estão incorretos!" })
+            return res.status(404).json({ message: "Os dados de login estão incorretos." })
         }
+
         const chkPassword = await bcrypt.compare(password, user.password)
         if (!chkPassword) {
             return res.status(422).json({ message: "Os dados de login estão incorretos." })
@@ -62,16 +63,29 @@ module.exports =
 
         try {
             const secret = process.env.SECRET
-            const token = jwt.sign({
-                id: user.id,
-            },
-                secret,
+            const token = jwt.sign(
+                {
+                    id: user.id,
+                    user_name: user.user_name
+                },
+                    secret
             )
 
-            res.status(200).json({ message: "Usuário autenticado com sucesso: ", token })
+            res.cookie('jwt', token, {
+                httpOnly: true,
+                maxAge: 24 * 60 * 60 * 1000 //1 dia de expiração
+            })
+
+            res.status(200).json({ message: "Usuário autenticado com sucesso" })
+
         } catch (error) {
             console.log(error)
             res.status(500).json({ message: "Erro interno no servidor." })
         }
+    },
+
+    async sair(req, res) {
+        res.cookie('jwt', '', { maxAge: 0 })
+        res.status(200).json({message: "sucess"})
     }
 }

@@ -16,7 +16,7 @@ module.exports =
         const { titulo, descricao, prazo_final, data_de_insercao, status } = req.body
 
         if (!titulo) {
-            res.status(422).json({ error: "campos obrigatorios!" })
+            res.status(422).json({ error: "Campos obrigatorios!" })
             return
         }
 

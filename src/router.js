@@ -4,32 +4,41 @@ const jwt = require('jsonwebtoken')
 
 const controllerTarefa = require('./controllers/tarefaController')
 const controllerUser = require('./controllers/userController')
+const User = require('./models/user')
 
 const routes = express.Router()
 
-//public
+//public routes
 routes.post('/auth/registro', controllerUser.registro)
-
 routes.post('/auth/entrar', controllerUser.entrar)
+routes.post('/auth/sair', controllerUser.sair)
 
+//middleware
 function checkToken(req, res, next) {
-    const authHeader = req.headers['authorization']
-    const token = authHeader && authHeader.split(' ')[1]
+    //const authHeader = req.headers['authorization']
+    //const token = authHeader && authHeader.split(' ')[1]
+
+    const token = req.cookies['jwt']
 
     if (!token) {
-        return res.status(401).json({ message: "Acesso negado." })
+        return res.status(401).json({ message: "Usuario não autenticado." })
     }
 
-    try {
-        const secret = process.env.SECRET
-        jwt.verify(token, secret)
-        next()
-    } catch (error) {
-        return res.status(400).json({ error: error })
-    }
+    const secret = process.env.SECRET
+    const claims = jwt.verify(token, secret)
+
+    if(!claims) {
+        return res.status(401).json({
+            error: true,
+            message: "Token invalid/expired"
+        })
+    } 
+
+    return next()
 }
 
-//private
+
+//private routes
 routes.get('/', checkToken, controllerTarefa.listar)
 
 routes.post('/novo', checkToken, controllerTarefa.novo)
