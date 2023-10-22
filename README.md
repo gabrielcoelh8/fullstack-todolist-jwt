@@ -1,4 +1,4 @@
-## Getting Started
+## Front-end do projeto usando o framework Next.js, TailwindCSS, Typescript.
 
 Instale as dependências:
 
