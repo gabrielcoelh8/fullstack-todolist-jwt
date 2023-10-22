@@ -1,6 +1,6 @@
 ## Getting Started
 
-Instale as dependências
+Instale as dependências:
 
 ```bash
 # dev
