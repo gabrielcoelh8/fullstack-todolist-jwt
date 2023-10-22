@@ -2,7 +2,7 @@
 
 ## Getting Started
 
-Crie um `.env` na raiz do projeto com a configurações do Postgres e a chave secret:
+Crie um `.env` na raiz do projeto com as configurações do Postgres e a chave secret:
 
 ```dosini
 DB_USER=
